@@ -179,20 +179,16 @@ void MainWindow::setupConnections()
     connect(m_buyButton, &QPushButton::clicked, this, &MainWindow::onBuyStock);
     connect(m_updateTimer, &QTimer::timeout, this, &MainWindow::updateStockData);
     connect(m_stockTable, &QTableWidget::cellDoubleClicked, this, &MainWindow::onBuyStock);
-
+    
     // Connect API signals
     if (m_apiManager) {
-        connect(m_apiManager.get(), &ApiManager::stockDataReceived,
+        connect(m_apiManager.get(), &ApiManager::stockDataReceived, 
                 this, &MainWindow::onStockDataReceived);
-        connect(m_apiManager.get(), &ApiManager::errorOccurred,
+        connect(m_apiManager.get(), &ApiManager::errorOccurred, 
                 this, &MainWindow::onApiError);
     }
 }
-    connect(m_stockTable, &QTableWidget::cellClicked, [this](int row, int column) {
-        // This will be implemented to update chart when stock is selected
-        Q_UNUSED(row);
-        Q_UNUSED(column);
-    });
+    // This will be implemented to update chart when stock is selected
 }
 
 void MainWindow::initializeData()
@@ -351,29 +347,7 @@ void MainWindow::setupApi()
     
     // Try to get API key from environment variable if not found in .env
     if (!m_apiManager->isApiKeySet()) {
-        const char* apiKeyEnv = std::getenv("TWELVE_DATA_API_KEY");
-        if (apiKeyEnv != nullptr) {
-            m_apiManager->setApiKey(std::string(apiKeyEnv));
-        } else {
-            // If not found in env, try to load from file
-            QString configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/stock_trading_simulator/api_key.txt";
-            QFile file(configPath);
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QTextStream in(&file);
-                QString apiKey = in.readLine();
-                m_apiManager->setApiKey(apiKey.toStdString());
-                file.close();
-            }
-        }
-    }
-    
-    // Start fetching live data if we have a key
-    if (m_apiManager->isApiKeySet()) {
-        fetchLiveStockData();
-    } else {
-        qDebug() << "No API key found. Using mock data only.";
-    }
-}
+        // No need for duplicate setupApi function - it's already defined
 
 void MainWindow::fetchLiveStockData()
 {
